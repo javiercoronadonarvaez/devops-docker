@@ -22,6 +22,9 @@ COPY . .
 # Install all packages
 RUN npm install 
 
+# Set Environmental variables
+ENV REACT_APP_BACKEND_URL="http://localhost:8080"
+
 # Build static files for production mode
 RUN npm run build
 

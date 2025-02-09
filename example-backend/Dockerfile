@@ -8,14 +8,14 @@ WORKDIR /usr/src/app
 # Copy all of the source code
 COPY . .
 
+# Set Environmental variables
+ENV REQUEST_ORIGIN="http://localhost:3000"
+
 # Build Project
 RUN go build
 
 # Test
 RUN go test ./....
-
-# Set Environmental variables
-ENV REQUEST_ORIGIN=https://example.com
 
 # Execute server file
 CMD ["./server"]
