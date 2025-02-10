@@ -1,0 +1,25 @@
+services:
+  # FRONTEND
+  app:
+    image: example-frontend
+    build:
+      context: ./example-frontend # The context will pick this directory as the "build context"
+      dockerfile: Dockerfile # This will simply tell which dockerfile to read
+    ports:
+      - 3000:5000
+    container_name: example-frontend-prod # This will name the container example-front-prod
+    environment:
+      REACT_APP_BACKEND_URL: http://localhost:8080
+    command: serve -s -l 5000 build
+
+  # FRONTEND
+  backend:
+    build:
+      context: ./example-backend
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    container_name: example-backend-prod # This will name the container example-backend-prod
+    environment:
+      REQUEST_ORIGIN: http://localhost:3000
+    command: ./server
