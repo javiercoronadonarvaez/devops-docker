@@ -10,9 +10,9 @@ services:
     container_name: example-frontend-prod # This will name the container example-front-prod
     environment:
       REACT_APP_BACKEND_URL: http://localhost:8080
-    command: serve -s -l 5000 build
+    command: ["serve", "-s", "-l", "5000", "build"]
 
-  # FRONTEND
+  # BACKEND
   backend:
     build:
       context: ./example-backend
@@ -22,4 +22,12 @@ services:
     container_name: example-backend-prod # This will name the container example-backend-prod
     environment:
       REQUEST_ORIGIN: http://localhost:3000
-    command: ./server
+      REDIS_HOST: redis
+    command: ["./server"]
+
+  # REDIS 
+  redis:
+    image: redis:alpine
+    container_name: redis-prod
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
