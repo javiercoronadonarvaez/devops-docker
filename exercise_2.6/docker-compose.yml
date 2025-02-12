@@ -1,7 +1,6 @@
 services:
   # FRONTEND
   app:
-    image: example-frontend
     build:
       context: ./example-frontend # The context will pick this directory as the "build context"
       dockerfile: Dockerfile # This will simply tell which dockerfile to read
@@ -23,7 +22,13 @@ services:
     environment:
       REQUEST_ORIGIN: http://localhost:3000
       REDIS_HOST: redis
+      POSTGRES_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
     command: ["./server"]
+    depends_on:
+      - db
 
   # REDIS 
   redis:
@@ -31,3 +36,11 @@ services:
     container_name: redis-prod
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
+
+  # POSTGRES DATABASE
+  db:
+    image: postgres:16.6-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+    container_name: postgres-db-prod
