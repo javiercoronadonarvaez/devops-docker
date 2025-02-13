@@ -5,11 +5,13 @@ services:
       context: ./example-frontend # The context will pick this directory as the "build context"
       dockerfile: Dockerfile # This will simply tell which dockerfile to read
     ports:
-      - 3000:5000
+      - 3000:80
     container_name: example-frontend-prod # This will name the container example-front-prod
     environment:
-      REACT_APP_BACKEND_URL: http://localhost:8080
-    command: ["serve", "-s", "-l", "5000", "build"]
+      REACT_APP_BACKEND_URL: http://localhost
+    networks:
+      - app_network
+    command: ["serve", "-s", "-l", "80", "build"]
 
   # BACKEND
   backend:
@@ -20,12 +22,14 @@ services:
       - 8080:8080
     container_name: example-backend-prod # This will name the container example-backend-prod
     environment:
-      REQUEST_ORIGIN: http://localhost:3000
+      REQUEST_ORIGIN: http://localhost
       REDIS_HOST: redis
       POSTGRES_HOST: db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DATABASE: postgres
+    networks:
+      - app_network
     command: ["./server"]
     depends_on:
       - db
@@ -35,6 +39,8 @@ services:
     image: redis:alpine
     container_name: redis-prod
     restart: unless-stopped
+    networks:
+      - app_network
     command: ["redis-server", "--appendonly", "yes"]
 
   # POSTGRES DATABASE
@@ -44,5 +50,24 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
     container_name: postgres-db-prod
+    networks:
+      - app_network
     volumes:
       - ./database:/var/lib/postgresql/data  
+
+  # REVERSE PROXY 
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 80:80
+    container_name: reverse-proxy-prod
+    networks:
+      - app_network
+    depends_on:
+      - app # wait for the frontend container to be started
+
+networks:
+  app_network:
+    driver: bridge
