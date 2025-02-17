@@ -17,5 +17,14 @@ RUN go build
 # Test
 RUN go test ./....
 
+# create the appuser
+RUN useradd -m appuser
+
+# change the owner of current dir to appuser
+RUN chown appuser .
+
+# now we can change the user
+USER appuser
+
 # Execute server file
 CMD ["./server"]
