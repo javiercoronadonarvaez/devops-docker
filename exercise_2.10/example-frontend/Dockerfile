@@ -31,5 +31,14 @@ RUN npm run build
 # Install serve
 RUN npm install -g serve
 
+# create the appuser
+RUN useradd -m appuser
+
+# change the owner of current dir to appuser
+RUN chown appuser .
+
+# now we can change the user
+USER appuser
+
 # Run Application
 CMD ["serve", "-s", "-l", "5000", "build"]
