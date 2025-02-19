@@ -11,17 +11,11 @@ COPY . .
 # Set Environmental variables
 # ENV REQUEST_ORIGIN="http://localhost:3000"
 
-# Build Project
-RUN go build
+# Build Project and Test
+RUN go build && go test ./....
 
-# Test
-RUN go test ./....
-
-# create the appuser
-RUN useradd -m appuser
-
-# change the owner of current dir to appuser
-RUN chown appuser .
+# create the appuser and change the owner of current dir to appuser
+RUN useradd -m appuser && chown appuser .
 
 # now we can change the user
 USER appuser

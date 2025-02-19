@@ -6,36 +6,23 @@ EXPOSE 5000
 
 WORKDIR /usr/src/app
 
-# Install curl
-RUN apt-get update && apt-get -y install curl
-
-# Install node
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
-RUN apt install -y nodejs
-
-# Verify node and npm versions
-RUN node -v && npm -v
+# Install curl and node
+RUN apt-get update && apt-get -y install curl && \
+    curl -sL https://deb.nodesource.com/setup_16.x | bash && \
+    apt install -y nodejs && \
+    node -v && npm -v
 
 # Copy all of the source code
 COPY . .
 
-# Install all packages
-RUN npm install 
+# Install all packages, Build static files for production mode and Install serve
+RUN npm install && npm run build && npm install -g serve
 
 # Set Environmental variables
 # ENV REACT_APP_BACKEND_URL="http://localhost:8080"
 
-# Build static files for production mode
-RUN npm run build
-
-# Install serve
-RUN npm install -g serve
-
-# create the appuser
-RUN useradd -m appuser
-
-# change the owner of current dir to appuser
-RUN chown appuser .
+# create the appuser and change the owner of current dir to appuser
+RUN useradd -m appuser && chown appuser .  
 
 # now we can change the user
 USER appuser
