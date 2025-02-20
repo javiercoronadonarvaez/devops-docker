@@ -1,31 +1,32 @@
-# Ubuntu 22.04 as starting image 
-FROM ubuntu:22.04
+# Use an official Node.js image
+FROM node:16-alpine3.16
 
-# Export port 5000
+# Expose port 5000
 EXPOSE 5000
 
+# Set working directory
 WORKDIR /usr/src/app
 
-# Install curl and node
-RUN apt-get update && apt-get -y install curl && \
-    curl -sL https://deb.nodesource.com/setup_16.x | bash && \
-    apt install -y nodejs && \
-    node -v && npm -v
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
 
-# Copy all of the source code
+# Install build dependencies (only for Alpine)
+RUN apk add --no-cache python3 make g++
+
+# Install dependencies with unsafe permissions
+RUN npm install --unsafe-perm
+
+# Copy the rest of the application
 COPY . .
 
-# Install all packages, Build static files for production mode and Install serve
-RUN npm install && npm run build && npm install -g serve
+# Build static files
+RUN npm run build && npm install -g serve
 
-# Set Environmental variables
-# ENV REACT_APP_BACKEND_URL="http://localhost:8080"
+# Create the appuser and change ownership
+RUN adduser -D -g '' appuser && chown -R appuser /usr/src/app
 
-# create the appuser and change the owner of current dir to appuser
-RUN useradd -m appuser && chown appuser .  
-
-# now we can change the user
+# Switch to the non-root user
 USER appuser
 
-# Run Application
+# Run the application
 CMD ["serve", "-s", "-l", "5000", "build"]
