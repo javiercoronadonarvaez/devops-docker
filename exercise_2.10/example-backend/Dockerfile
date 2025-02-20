@@ -6,8 +6,8 @@ WORKDIR /usr/src/app
 # Copy source code
 COPY . .
 
-# Build the binary as a static executable
-RUN CGO_ENABLED=0 GOOS=linux go build -o server .
+# Build the binary as a small static executable
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server . 
 
 # Create a non-root user (appuser) in the builder stage
 RUN adduser -D -g '' appuser
