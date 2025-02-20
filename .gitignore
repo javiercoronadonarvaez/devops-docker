@@ -3,3 +3,4 @@
 .secrets
 # nginx.conf
 .DS_Store
+database
